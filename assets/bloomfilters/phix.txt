@@ -1,0 +1,14 @@
+[user_input_options]
+filter_id=phix
+kmer_size=25
+desired_false_positve_rate=0.0078125
+number_of_hash_functions=7
+expected_num_entries=5362
+sequence_sources=phix.fasta 
+
+[runtime_options]
+size=54208
+num_entries=5357
+approximate_false_positive_rate=0.00773732
+redundant_sequences=5
+redundant_fpr=0.0012635

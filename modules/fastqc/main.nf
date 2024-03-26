@@ -1,5 +1,5 @@
 process FASTQC {
-    tag "$meta.id"
+    tag "${meta.id}|${meta.sample_id}"
     label 'short_parallel'
 
     conda "${moduleDir}/environment.yml"
@@ -20,7 +20,7 @@ process FASTQC {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: ""
+    def prefix = task.ext.prefix ?: meta.sample_id
     // Make list of old name and new name pairs to use for renaming in the bash while loop
     def old_new_pairs = reads instanceof Path || reads.size() == 1 ? [[ reads, "${prefix}.${reads.extension}" ]] : reads.withIndex().collect { entry, index -> [ entry, "${prefix}_${index + 1}.${entry.extension}" ] }
     def rename_to = old_new_pairs*.join(' ').join(' ')

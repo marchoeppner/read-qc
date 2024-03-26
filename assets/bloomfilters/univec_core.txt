@@ -1,0 +1,14 @@
+[user_input_options]
+filter_id=univec_core
+kmer_size=25
+desired_false_positve_rate=0.0078125
+number_of_hash_functions=7
+expected_num_entries=612355
+sequence_sources=univec_core.fa 
+
+[runtime_options]
+size=6184128
+num_entries=475966
+approximate_false_positive_rate=0.00217528
+redundant_sequences=132271
+redundant_fpr=0.000335147

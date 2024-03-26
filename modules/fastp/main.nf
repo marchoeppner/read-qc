@@ -1,4 +1,7 @@
 process FASTP {
+
+    tag "${meta.sample_id}"
+    
     label 'short_parallel'
 
     conda "${moduleDir}/environment.yml"
@@ -15,16 +18,16 @@ process FASTP {
     path('versions.yml'), emit: versions
 
     script:
+    
+    r1 = reads[0]
 
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: r1.getBaseName()
+    def prefix = task.ext.prefix ?: meta.sample_id
 
     suffix = '_trimmed.fastq.gz'
 
     json = prefix + '.fastp.json'
     html = prefix + '.fastp.html'
-
-    r1 = reads[0]
 
     if (meta.single_end) {
         r1_trim = r1.getBaseName() + suffix

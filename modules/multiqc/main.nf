@@ -19,7 +19,7 @@ process MULTIQC {
 
     """
 
-    multiqc -n ${prefix}_multiqc_report $args .
+    multiqc -n ${prefix}multiqc_report $args .
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
