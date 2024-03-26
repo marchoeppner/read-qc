@@ -1,5 +1,4 @@
 process MULTIQC {
-    
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/multiqc:1.21--pyhdfd78af_0' :
@@ -7,8 +6,6 @@ process MULTIQC {
 
     input:
     path('*')
-    path(config)
-    path(logo)
     path(config)
     path(logo)
 
@@ -22,7 +19,7 @@ process MULTIQC {
 
     """
 
-    multiqc -n ${prefix}multiqc_report $args .
+    multiqc -n ${prefix}_multiqc_report $args .
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

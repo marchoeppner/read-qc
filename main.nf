@@ -2,18 +2,17 @@
 
 nextflow.enable.dsl = 2
 
-// TODO: Update this block with a description and the name of the pipeline
-/**
+/*
 ===============================
-Pipeline
+Read QC Pipeline
 ===============================
 
-This Pipeline performs ....
+This Pipeline performs basic QC of sequencing runs and project data therein
 
 ### Homepage / git
-git@github.com:marchoeppner/pipeline.git
+git@github.com:marchoeppner/read-qc.git
 
-**/
+*/
 
 // Pipeline version
 params.version = workflow.manifest.version
@@ -24,19 +23,16 @@ run_name = (params.run_name == false) ? "${workflow.sessionId}" : "${params.run_
 
 WorkflowMain.initialise(workflow, params, log)
 
-// TODO: Rename this and the file under lib/ to something matching this pipeline (e.g. WorkflowAmplicons)
 WorkflowPipeline.initialise(params, log)
 
-// TODO: Rename this to something matching this pipeline, e.g. "AMPLICONS"
-include { MAIN } from './workflows/main'
+include { READQC } from './workflows/readqc'
 
 multiqc_report = Channel.from([])
 
 workflow {
-    // TODO: Rename to something matching this pipeline (see above)
-    MAIN()
+    READQC()
 
-    multiqc_report = multiqc_report.mix(MAIN.out.qc).toList()
+    multiqc_report = multiqc_report.mix(READQC.out.qc).toList()
 }
 
 workflow.onComplete {
