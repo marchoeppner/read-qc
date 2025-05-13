@@ -16,13 +16,10 @@ process SAMTOOLS_DICT {
     path("versions.yml"), emit: versions
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: fasta.getBaseName()
-
-    dict = prefix + '.dict'
+    dict = fasta.getBaseName() + '.dict'
 
     """
-    samtools dict $args $fasta > $dict
+    samtools dict $fasta > $dict
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

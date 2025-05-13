@@ -1,6 +1,6 @@
 process BIOBLOOMTOOLS_CATEGORIZER {
 
-    label 'short_parallel'
+    label 'medium_parallel'
 
     tag "${meta.sample_id}"
 
@@ -11,6 +11,7 @@ process BIOBLOOMTOOLS_CATEGORIZER {
 
     input:
     tuple val(meta), path(reads)
+    val(bloomfilters)
 
     output:
     path('versions.yml'), emit: versions
@@ -18,8 +19,10 @@ process BIOBLOOMTOOLS_CATEGORIZER {
 
     script:
 
+    def args = task.ext.args ?: ''
+
     """
-    biobloomcategorizer -p $meta.sample_id -t ${task.cpus} -e -f "${params.references.bloomfilter}" $reads
+    biobloomcategorizer -p $meta.sample_id -t ${task.cpus} -f \"${bloomfilters}\" $args $reads
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

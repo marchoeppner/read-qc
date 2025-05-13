@@ -9,22 +9,18 @@ process SAMTOOLS_MERGE {
     tag "${meta.sample_id}"
 
     input:
-    tuple val(meta), path(aligned_bam_list)
+    tuple val(meta), path(aligned_bam_list, stageAs: 'input*/*')
 
     output:
-    tuple val(meta), path(merged_bam), emit: bam
+    tuple val(meta), path("*merged.bam"), emit: bam
     val(meta), emit: meta_data
     path("versions.yml"), emit: versions
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: meta.sample_id
-
-    merged_bam = prefix + '-merged.bam'
-    merged_bam_index = merged_bam + '.bai'
+    def merged_bam = meta.sample_id + '-merged.bam'
 
     """
-    samtools merge $args -@ 4 $merged_bam ${aligned_bam_list.join(' ')}
+    samtools merge -@ ${task.cpus} $merged_bam ${aligned_bam_list.join(' ')}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

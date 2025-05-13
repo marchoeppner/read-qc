@@ -20,16 +20,13 @@ process SAMTOOLS_MARKDUP {
     path("versions.yml"), emit: versions
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: meta.sample_id
-
-    namePrefix = "${prefix}-dedup"
+    namePrefix = "${meta.sample_id}-dedup"
     outfile_bam = namePrefix + '.bam'
     outfile_bai = namePrefix + '.bam.bai'
     outfile_metrics = namePrefix + '_duplicate_metrics.txt'
 
     """
-    samtools markdup $args -@ ${task.cpus} --reference $fasta $merged_bam $outfile_bam
+    samtools markdup -@ ${task.cpus} --reference $fasta $merged_bam $outfile_bam
     samtools index $outfile_bam
     samtools stats $outfile_bam > $outfile_metrics
 

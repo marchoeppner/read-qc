@@ -1,15 +1,13 @@
 title: "Read-QC Pipeline report"
-subtitle: "Quality control of MiSeq runs"
+subtitle: "Quality control of Illumina runs"
 custom_logo: "pipelinelogo.png"
 custom_logo_title: "Read-QC - checking sequencing runs."
 custom_logo_url: "http://www.github.com/marchoeppner/read-qc"
 skip_versions_section: true
 
 extra_fn_clean_exts:
-    - _R1
-    - _R2
-    - _duplicate_metrics.txt
-    - .pass
+    - type: regex
+      pattern: "_S[0-9]+_.*"
 
 report_comment: >
     This report has been generated automatically by marchoeppner/read-qc.
@@ -20,6 +18,8 @@ report_header_info:
 
 top_modules:
     - 'general_stats'
+    - 'bcl2fastq'
+    - 'checkqc'
 
 report_section_order:
     software_versions:
