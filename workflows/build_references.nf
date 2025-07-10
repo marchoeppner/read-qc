@@ -5,9 +5,6 @@ include { GUNZIP  as GUNZIP_GENOME }    from "./../modules/gunzip"
 workflow BUILD_REFERENCES {
 
     main:
-
-    log.info params.reference_base
-
     
     hosts = params.bloomfilter.keySet()
 

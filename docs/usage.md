@@ -13,7 +13,7 @@ A basic execution of the pipeline looks as follows:
 a) Without a site-specific config file
 
 ```bash
-nextflow run marchoeppner/gabi -profile singularity --input samples.csv \\
+nextflow run marchoeppner/gabi -profile singularity --input /path/top/run_folder \\
 --reference_base /path/to/references \\
 --run_name pipeline-test
 ```
@@ -35,24 +35,22 @@ Additional software provisioning tools as described [here](https://www.nextflow.
 b) with a site-specific config file
 
 ```bash
-nextflow run marchoeppner/gabi -profile lsh --input samples.csv \\
+nextflow run marchoeppner/gabi -profile lsh --input /path/top/run_folder \\
 --run_name pipeline-test 
 ```
 
 In this example, both `--reference_base` and the choice of software provisioning are already set in the local configuration `lsh` and don't have to be provided as command line argument. 
 
-## Resources
+## Options
 
-The following options can be set to control resource usage outside of a site-specific [config](https://github.com/marchoeppner/nf-configs) file.
+### `--input` [ default = null ]
 
-### `--max_cpus` [ default = 16]
+Path to a Illumina run directory.
 
-The maximum number of cpus a single job can request. This is typically the maximum number of cores available on a compute node or your local (development) machine. 
+### `---samplesheet`[ default = null ]
 
-### `--max_memory` [ default = 128.GB ]
+Path to the corresponding sample sheet. If not provided, the pipeline will look for it inside the run directory (SampleSheet.csv).
 
-The maximum amount of memory a single job can request. This is typically the maximum amount og RAM available on a compute node or your local (development) machine. Typically it is advisable to set this a little lower than the maximum amount of RAM to prevent the machine from swapping. 
+### `--run_name` [ default = null ]
 
-### `--max_time`[ default = 240.h ]
-
-The maximum allowed run/wall time a single job can request. This is mostly relevant for environments where run time is restricted, such as in a computing cluster with active resource manager or possibly some cloud environments.  
+A unique name for this analysis; will be used to name the final report. 
