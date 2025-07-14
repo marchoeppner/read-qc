@@ -9,12 +9,11 @@ include { MULTIQC as MULTIQC_RUN }                  from './../modules/multiqc'
 include { MD5SUM }                                  from './../modules/md5sum'
 include { CUSTOM_DUMPSOFTWAREVERSIONS }             from './../modules/custom/dumpsoftwareversions'
 include { BIOBLOOMTOOLS_CATEGORIZER as CHECK_PHIX } from './../modules/biobloomtools/categorizer'
-
+include { INTEROP_SUMMARY }                         from './../modules/interop/summary'
 /*
 Import sub workflows
 */
-include { CONTAMINATION }               from './../subworkflows/contamination'
-include { PHIX }                        from './../subworkflows/phix'
+include { CONTAMINATION }                           from './../subworkflows/contamination'
 
 workflow READQC {
     main:
@@ -40,19 +39,25 @@ workflow READQC {
     }
     ch_bloomfilters = bloomfilters.join(" ")
 
-    // The PhiX BWA index
-    bwa_index = Channel.fromPath("${baseDir}/assets/bloomfilters/phix.fasta*").collect().toList()
-
     /*
     Read the sub folders and any fastQ files therein
     */
+
+    /*
+    Run Illumina interop
+    */
+    INTEROP_SUMMARY(
+        illumina_folder
+    )
+    ch_versions = ch_versions.mix(INTEROP_SUMMARY.out.versions)
+    multiqc_files = multiqc_files.mix(INTEROP_SUMMARY.out.csv.map { m,t -> t})
 
     // Demux reads from scratch to obtain relevant metrics
     BCL2FASTQ(
         illumina_folder.combine(samplesheet)
     )
     ch_versions = ch_versions.mix(BCL2FASTQ.out.versions)
-    multiqc_files = multiqc_files.mix(BCL2FASTQ.out.stats).map {m,s -> s }
+    multiqc_files = multiqc_files.mix(BCL2FASTQ.out.stats.map {m,s -> s } )
 
     BCL2FASTQ.out.fastq.flatMap { m, fastqs ->
         fastqs.collect { fastq ->
@@ -62,22 +67,6 @@ workflow READQC {
             tuple(meta,fastq)
         }
     }.set { ch_reads}
-
-    ch_undetermined = BCL2FASTQ.out.undetermined.map {m,f -> f}.flatten()
-    ch_fastqs = BCL2FASTQ.out.fastq.map {m,f -> f}.flatten()
-    ch_undetermined.concat(ch_fastqs).map { f ->
-        def meta = [:]
-        meta.sample_id = f.getBaseName().split("_L00")[0]
-        tuple(meta,f)
-    }.groupTuple().set { ch_all_reads }
-
-    // Align reads against phix and compute fraction and error rate
-    PHIX(
-        ch_all_reads,
-        bwa_index
-    )
-    ch_versions = ch_versions.mix(PHIX.out.versions)
-    //multiqc_files = multiqc_files.mix(PHIX.out.qc.map{ m,s -> s}) // not useful to have in MultiQC as is
 
     // forward the illumina folder after demuxing; we use one of the outputs of bcl2fastq to trigger this
     illumina_folder.combine(BCL2FASTQ.out.versions).map { m,f,v ->
