@@ -19,6 +19,8 @@ params.version = workflow.manifest.version
 
 include { READQC }              from './workflows/readqc'
 include { BUILD_REFERENCES }    from './workflows/build_references'
+include { PIPELINE_COMPLETION } from './subworkflows/pipeline_completion'
+
 
 workflow {
 
@@ -33,4 +35,6 @@ workflow {
         READQC()
         multiqc_report = multiqc_report.mix(READQC.out.qc).toList()
     }
+
+    PIPELINE_COMPLETION()
 }
