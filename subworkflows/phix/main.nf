@@ -10,8 +10,8 @@ workflow PHIX {
     idx
 
     main:
-    ch_multiqc = Channel.from([])
-    ch_versions = Channel.from([])
+    ch_multiqc = channel.from([])
+    ch_versions = channel.from([])
 
     reads_with_index = reads.combine(idx)
 

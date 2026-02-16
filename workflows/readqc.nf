@@ -18,19 +18,37 @@ include { CONTAMINATION }                           from './../subworkflows/cont
 workflow READQC {
     main:
 
-    ch_versions = Channel.from([])
-    multiqc_files = Channel.from([])
+    ch_versions = channel.from([])
+    multiqc_files = channel.from([])
     
-    ch_multiqc_config = params.multiqc_config   ? Channel.fromPath(params.multiqc_config, checkIfExists: true).collect() : Channel.value([])
-    ch_multiqc_logo   = params.multiqc_logo     ? Channel.fromPath(params.multiqc_logo, checkIfExists: true).collect() : Channel.value([])
+    ch_multiqc_config = params.multiqc_config   ? channel.fromPath(params.multiqc_config, checkIfExists: true).collect() : channel.value([])
+    ch_multiqc_logo   = params.multiqc_logo     ? channel.fromPath(params.multiqc_logo, checkIfExists: true).collect() : channel.value([])
 
-    illumina_folder = Channel.fromPath(params.input, checkIfExists: true).map { f -> 
+    ch_reads = channel.empty()
+
+    illumina_folder = channel.fromPath(params.input, checkIfExists: true).map { f -> 
         [
             [sample_id: file(params.input).getBaseName()],
             f
         ]
     }
-    samplesheet = params.samplesheet ? Channel.fromPath(params.samplesheet, checkIfExists: true) : Channel.fromPath("${params.input}/SampleSheet.csv", checkIfExists: true)
+    samplesheet = params.samplesheet ? channel.fromPath(params.samplesheet, checkIfExists: true) : channel.fromPath("${params.input}/SampleSheet.csv", checkIfExists: true)
+
+    // Find the demuxed reads if any
+    channel.fromPath(params.input + "/**/*.fastq.gz").ifEmpty(false).map { f ->
+        [
+            [sample_id: file(params.input).getBaseName()],
+            f
+        ]
+    }.set { ch_reads }
+    
+    // Check if there are reads
+    illumina_folder.merge(ch_reads).branch { m,f,n,r ->
+        has_reads: r
+        has_no_reads: !r
+    }.map { m,f,n,r ->
+        tuple(m,f)
+    }.set { illumina_folder_by_status }
 
     // bloom filter - built-in plus installed
     bloomfilters = [ "$baseDir/assets/bloomfilters/phix.bf", "$baseDir/assets/bloomfilters/univec_core.bf"]
@@ -54,7 +72,7 @@ workflow READQC {
 
     // Demux reads from scratch to obtain relevant metrics
     BCL2FASTQ(
-        illumina_folder.combine(samplesheet)
+        illumina_folder_by_status.has_no_reads.combine(samplesheet)
     )
     ch_versions = ch_versions.mix(BCL2FASTQ.out.versions)
     multiqc_files = multiqc_files.mix(BCL2FASTQ.out.stats.map {m,s -> s } )
@@ -66,10 +84,17 @@ workflow READQC {
             meta.sample_id = fastq.getSimpleName()
             tuple(meta,fastq)
         }
-    }.set { ch_reads}
+    }.set { ch_reads_demuxed }
+    
+    ch_reads = ch_reads.mix(ch_reads_demuxed)
+
+    ch_reads.branch { m, r ->
+        valid: r
+        invalid: !r
+    }.set { reads_by_status }
 
     // forward the illumina folder after demuxing; we use one of the outputs of bcl2fastq to trigger this
-    illumina_folder.combine(BCL2FASTQ.out.versions).map { m,f,v ->
+    illumina_folder.merge(reads_by_status.valid).map { m,f,n,r ->
         tuple(m,f)
     }.set { demux_folder }
 
@@ -82,8 +107,7 @@ workflow READQC {
 
     // Perform contamination check on reads
     // group by library ID and Lane
-    CONTAMINATION(
-        ch_reads.map { m,f ->
+    reads_by_status.valid.map { m,f ->
             def sample = sample_from_library(f.getBaseName())
             tuple(sample,f)
         }.groupTuple()
@@ -92,7 +116,10 @@ workflow READQC {
             meta.sample_id = k
             meta.single_end = false
             tuple(meta,files)
-        },
+        }.set { ch_grouped_reads }
+
+    CONTAMINATION(
+        ch_grouped_reads,
         ch_bloomfilters
     )
     ch_versions = ch_versions.mix(CONTAMINATION.out.versions)
@@ -102,14 +129,14 @@ workflow READQC {
     Perform basic read qc
     */
     FASTQC(
-        ch_reads
+        ch_grouped_reads
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions)
     multiqc_files = multiqc_files.mix(FASTQC.out.zip.map {m,z -> z})
 
     // Compute md5sum and store reads by sequencing project
     MD5SUM(
-        ch_reads.map { m,reads -> 
+        reads_by_status.valid.map { m,reads -> 
             def meta = [:]
             def project = reads.getParent().getName()
             meta.sample_id = m.sample_id

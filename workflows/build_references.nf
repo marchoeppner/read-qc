@@ -19,7 +19,7 @@ workflow BUILD_REFERENCES {
         }
     }
 
-    ch_hosts = Channel.from(host_files)
+    ch_hosts = channel.from(host_files)
 
     ch_hosts.branch { m, f ->
         gzipped: f.toString().contains(".gz")
