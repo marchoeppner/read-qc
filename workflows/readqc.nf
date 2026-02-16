@@ -45,9 +45,9 @@ workflow READQC {
     // Check if there are reads
     illumina_folder.merge(ch_reads).branch { m,f,n,r ->
         has_reads: r
-            return [m, file(f)]
         has_no_reads: !r
-            return [m, file(f)]
+    }.map { m,f,n,r ->
+        tuple(m,f)
     }.set { illumina_folder_by_status }
 
     // bloom filter - built-in plus installed
