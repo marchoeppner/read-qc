@@ -10,7 +10,7 @@ workflow CONTAMINATION {
 
     main:
 
-    ch_versions = Channel.from([])
+    ch_versions = channel.from([])
     
     FASTP(
         reads

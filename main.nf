@@ -27,7 +27,7 @@ workflow {
     WorkflowMain.initialise(workflow, params, log)
     WorkflowPipeline.initialise(params, log)
 
-    multiqc_report = Channel.from([])
+    multiqc_report = channel.from([])
 
     if (params.build_references) {
         BUILD_REFERENCES()

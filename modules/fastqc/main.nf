@@ -1,5 +1,5 @@
 process FASTQC {
-    tag "${meta.id}|${meta.sample_id}"
+    tag "${meta.sample_id}"
     label 'short_parallel'
 
     conda "${moduleDir}/environment.yml"
