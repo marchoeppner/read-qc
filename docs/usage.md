@@ -35,13 +35,17 @@ Additional software provisioning tools as described [here](https://www.nextflow.
 b) with a site-specific config file
 
 ```bash
-nextflow run marchoeppner/gabi -profile lsh --input /path/top/run_folder \\
+nextflow run marchoeppner/read-qc -profile lsh --input /path/top/run_folder \\
 --run_name pipeline-test 
 ```
 
 In this example, both `--reference_base` and the choice of software provisioning are already set in the local configuration `lsh` and don't have to be provided as command line argument. 
 
 ## Options
+
+### `--bclconvert [ default = false ]
+
+Perform demultiplexing with bclconvert rather than bcl2fastq (only performed when the run does not contain fastq.gz files)
 
 ### `--input` [ default = null ]
 

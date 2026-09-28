@@ -1,5 +1,7 @@
 process BCL2FASTQ {
     
+    tag "{meta.id}"
+    
     label 'medium_parallel'
 
     container "docker://umccr/bcl2fastq:v2.20.0.422"
@@ -16,6 +18,7 @@ process BCL2FASTQ {
     tuple val(meta), path("output/Stats")                               , emit: stats
     tuple val(meta), path("InterOp/*.bin")                              , emit: interop
     path("versions.yml")                                                , emit: versions
+    tuple val(meta), path("output")                                     , emit: demuxed
 
     when:
     task.ext.when == null || task.ext.when

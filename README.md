@@ -1,4 +1,12 @@
-# Pipeline
+# Read-QC
+
+This pipeline is designed to perform basic quality control of Illumina sequencing runs. This includes:
+
+- Read contamination checks
+- Read metrics
+- Run metrics
+
+If the Illumina run folder does not contain FastQ files, the pipeline will automatically perform the demultiplexing. 
 
 ## Documentation 
 

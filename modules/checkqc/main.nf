@@ -1,5 +1,5 @@
 process CHECKQC {
-    tag "$meta.sample_id"
+    tag "$meta.id"
     label 'short_parallel'
 
     container "community.wave.seqera.io/library/python_numpy_pip_checkqc_interop:b5301d9801b8e66b"

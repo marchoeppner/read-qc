@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/marchoeppner/read-qc//nextflow_schema.json",
+  "title": "marchoeppner/read-qc pipeline parameters",
+  "description": "Read-QC Pipeline",
+  "type": "object",
+  "$defs": {
+    "input_output_options": {
+      "title": "Input/output options",
+      "type": "object",
+      "fa_icon": "fas fa-terminal",
+      "description": "Define where the pipeline should find input data and save output data.",
+      "required": ["input", "outdir", "run_name"],
+      "properties": {
+        "input": {
+          "type": "string",
+          "format": "file-path",
+          "exists": true,
+          "schema": "assets/schema_input.json",
+          "mimetype": "text/csv",
+          "pattern": "^\\S+\\.csv$",
+          "description": "Path to comma-separated file containing information about the samples in the experiment.",
+          "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
+          "fa_icon": "fas fa-file-csv"
+        },
+        "outdir": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
+          "fa_icon": "fas fa-folder-open",
+          "default": "results"
+        },
+        "run_name": {
+          "type": "string",
+          "description": "A name for the output file(s)"
+        },
+        "samplesheet": {
+          "type": "string",
+          "description": "A custom Illumina samplesheet"
+        }
+      }
+    },
+    "generic_options": {
+      "title": "Generic options",
+      "type": "object",
+      "fa_icon": "fas fa-file-import",
+      "description": "Less common options for the pipeline, typically set in a config file.",
+      "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
+      "properties": {
+        "build_references": {
+          "type": "boolean",
+          "description": "Build local pipeline references"
+        },
+        "store_demux": {
+          "type": "boolean",
+          "description": "Store demultiplexed reads"
+        },
+        "version": {
+          "type": "boolean",
+          "description": "Display version and exit.",
+          "fa_icon": "fas fa-question-circle",
+          "hidden": true
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/input_output_options"
+    },
+    {
+      "$ref": "#/$defs/generic_options"
+    }
+  ],
+  "properties": {
+    "reference_base": {
+      "type": "string",
+      "hidden": true
+    },
+    "reference_version": {
+      "type": "integer",
+      "default": 1,
+      "hidden": true
+    },
+    "logo": {
+      "type": "string",
+      "default": "/home/mhoeppner/git/read-qc/assets/pipelinelogo.png",
+      "hidden": true
+    },
+    "plaintext_email": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "skip_multiqc": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "email": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "maxMultiqcEmailFileSize": {
+      "type": "string",
+      "default": "25 MB",
+      "hidden": true
+    },
+    "multiqc_config": {
+      "type": "string",
+      "default": "/home/mhoeppner/git/read-qc/conf/multiqc_config.yaml",
+      "hidden": true
+    },
+    "multiqc_logo": {
+      "type": "string",
+      "default": "/home/mhoeppner/git/read-qc/assets/pipelinelogo.png",
+      "hidden": true
+    },
+    "publish_dir_mode": {
+      "type": "string",
+      "default": "copy",
+      "hidden": true
+    },
+    "custom_config_base": {
+      "type": "string",
+      "default": "https://raw.githubusercontent.com/bio-raum/nf-configs/main",
+      "hidden": true
+    }
+  }
+}
