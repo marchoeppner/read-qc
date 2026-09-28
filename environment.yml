@@ -2,7 +2,7 @@
 #   conda env create -f environment.yml
 name: PIPELINE-VERSION
 channels:
-  - defaults
+  
   - conda-forge
   - bioconda
 dependencies:

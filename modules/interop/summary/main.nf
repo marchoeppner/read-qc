@@ -1,6 +1,6 @@
 process INTEROP_SUMMARY {
 
-    tag "${meta.sample_id}"
+    tag "${meta.id}"
     
     label 'short_parallel'
 
@@ -18,7 +18,7 @@ process INTEROP_SUMMARY {
 
     script:
     def args = task.ext.args ?: ''
-    def summary = meta.sample_id + ".interop.csv"
+    def summary = meta.id + ".interop.csv"
 
     """
     interop_summary $args $folder > $summary

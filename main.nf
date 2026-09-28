@@ -27,13 +27,13 @@ workflow {
     WorkflowMain.initialise(workflow, params, log)
     WorkflowPipeline.initialise(params, log)
 
-    multiqc_report = channel.from([])
+    // multiqc_report = channel.from([])
 
     if (params.build_references) {
         BUILD_REFERENCES()
     } else {
         READQC()
-        multiqc_report = multiqc_report.mix(READQC.out.qc).toList()
+        // multiqc_report = multiqc_report.mix(READQC.out.qc).toList()
     }
 
     PIPELINE_COMPLETION()

@@ -2,6 +2,6 @@ name: interop_summary
 channels:
   - conda-forge
   - bioconda
-  - defaults
+  
 dependencies:
   - bioconda::illumina-interop=1.5.0
