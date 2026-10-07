@@ -1,43 +1,34 @@
-include { FASTP }                        from './../../modules/fastp'
-include { BIOBLOOMTOOLS_CATEGORIZER }    from './../../modules/biobloomtools/categorizer'
-include { BIOBLOOM_SUMMARY }             from './../../modules/helper/biobloom_summary'
-
+include { FASTP }               from './../../modules/fastp'
+include { KRAKEN2_KRAKEN2 }     from './../../modules/kraken2/kraken2'            
 
 workflow CONTAMINATION {
 
     take:
     reads
-    bloomfilters
+    kraken_db
 
     main:
 
+    ch_qc = channel.from([])
     ch_versions = channel.from([])
     
     FASTP(
         reads
     )
     ch_versions = ch_versions.mix(FASTP.out.versions)
+    ch_qc = ch_qc.mix(FASTP.out.json)
 
-    BIOBLOOMTOOLS_CATEGORIZER(
-        FASTP.out.reads,
-        bloomfilters
+    KRAKEN2_KRAKEN2(
+        reads,
+        kraken_db,
+        false,
+        false
     )
-    ch_versions = ch_versions.mix(BIOBLOOMTOOLS_CATEGORIZER.out.versions)
-
-    BIOBLOOMTOOLS_CATEGORIZER.out.results.map { t ->
-        [
-            [ id: params.run_name ], t
-        ]
-    }.groupTuple()
-    .set { contamination_jsons }
-
-    BIOBLOOM_SUMMARY(
-        contamination_jsons
-    )
-
+    ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
+    qc_qc = ch_qc.mix(KRAKEN2_KRAKEN2.out.report)
+   
     emit:
     versions = ch_versions
-    fastp_json = FASTP.out.json
-    biobloom_json = BIOBLOOM_SUMMARY.out.json
-    qc = BIOBLOOMTOOLS_CATEGORIZER.out.results
+
+    qc = ch_qc
 }

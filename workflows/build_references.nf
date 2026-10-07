@@ -1,39 +1,24 @@
-
-include { BIOBLOOMTOOLS_MAKER }         from "./../modules/biobloomtools/maker"
-include { GUNZIP  as GUNZIP_GENOME }    from "./../modules/gunzip"
+include { UNTAR } from "./../modules/untar"
 
 workflow BUILD_REFERENCES {
 
     main:
-    
-    hosts = params.bloomfilter.keySet()
 
-    host_files = []
+    ch_versions = channel.from([])
 
-    hosts.each { h ->
-        if (params.bloomfilter[h].name) {
-            host_files << [
-                [sample_id: params.bloomfilter[h].name],
-                file(params.bloomfilter[h].url, checkIfExists: true)
+    ch_kraken_db = channel.fromPath(params.references.kraken2.url)
+
+    UNTAR(
+        ch_kraken_db.map { f ->
+            [
+                [ id: f.getBaseName() ],
+                f
             ]
         }
-    }
-
-    ch_hosts = channel.from(host_files)
-
-    ch_hosts.branch { m, f ->
-        gzipped: f.toString().contains(".gz")
-        uncompressed: !f.toString().contains(".gz")
-    }.set { genomes_by_compression }
-    
-    GUNZIP_GENOME(
-        genomes_by_compression.gzipped
     )
+    ch_versions = ch_versions.mix(UNTAR.out.versions)
 
-    ch_genomes = GUNZIP_GENOME.out.gunzip.mix(genomes_by_compression.uncompressed)
-
-    BIOBLOOMTOOLS_MAKER(
-        ch_genomes
-    )
+    emit:
+    versions = ch_versions
 
 }

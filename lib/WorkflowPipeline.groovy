@@ -16,6 +16,10 @@ class WorkflowPipeline {
             log.info 'Pipeline requires a folder with sequencing data as input!'
             System.exit(1)
         }
+        if (parmams.bcl2fastq && params.bclconvert) {
+            log.info "Cannot specify both --bcl2fastq and --bclconvert, choose one!"
+            System.exit(1)
+        }
     }
 
 }

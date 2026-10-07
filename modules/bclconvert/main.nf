@@ -15,7 +15,8 @@ process BCLCONVERT {
     tuple val(meta), path("output/Reports"), emit: reports
     tuple val(meta), path("output/Logs"), emit: logs
     tuple val(meta), path("output/InterOp/*.bin"), emit: interop, optional: true
-    tuple val("${task.process}"), val('bclconvert'), eval("bcl-convert -V 2>&1 | head -n 1 | sed 's/^.*Version //'"), topic: versions, emit: versions_bclconvert
+    tuple val(meta), path("output"), emit: output
+    path("versions.yml"), emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -65,6 +66,12 @@ process BCLCONVERT {
     # copy the InterOp folder contents to ensure it gets picked up when using fusion
     mkdir -p output/InterOp/
     cp -n **/InterOp/*.bin output/InterOp/
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        bclconvert: \$(bcl-convert -V 2>&1 | head -n 1 | sed 's/^.*Version //')
+    END_VERSIONS
+
     """
 
 }

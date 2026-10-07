@@ -118,7 +118,7 @@ def main(run_name, output):
         "fastp": ("fastp", ".fastp.json", parse_json, None),
         "interop": ("interop", "interop.csv", parse_interop_csv, None),
         "versions": ("versions", "versions.yml", parse_yaml, None),
-        "biobloom": ("biobloom", "biobloom.json", parse_json, None),
+        "kraken2": ("kraken", "report.txt", parse_flat, None),
     }
 
     files = [os.path.abspath(f) for f in glob.glob("*")]
@@ -127,7 +127,7 @@ def main(run_name, output):
 
     matrix = {
         "date": date,
-        "biobloom": {},
+        "kraken2": {},
         "run_date": datetime.now().strftime('%Y-%m-%d'),
         "run_name": run_name
     }
