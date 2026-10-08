@@ -5,7 +5,7 @@ process BCLCONVERT {
     container "quay.io/nf-core/bclconvert:4.5.4"
 
     input:
-    tuple val(meta), path(samplesheet), path(run_dir)
+    tuple val(meta), path(run_dir), path(samplesheet)
 
     output:
     tuple val(meta), path("output/**_S[1-9]*_R?_00?.fastq.gz"), emit: fastq
@@ -14,8 +14,8 @@ process BCLCONVERT {
     tuple val(meta), path("output/**Undetermined_S0*_I?_00?.fastq.gz"), emit: undetermined_idx, optional: true
     tuple val(meta), path("output/Reports"), emit: reports
     tuple val(meta), path("output/Logs"), emit: logs
-    tuple val(meta), path("output/InterOp/*.bin"), emit: interop, optional: true
-    tuple val(meta), path("output"), emit: output
+    tuple val(meta), path("output/InterOp/"), emit: interop, optional: true
+    tuple val(meta), path("output"), emit: demuxed
     path("versions.yml"), emit: versions
 
     when:
@@ -66,6 +66,7 @@ process BCLCONVERT {
     # copy the InterOp folder contents to ensure it gets picked up when using fusion
     mkdir -p output/InterOp/
     cp -n **/InterOp/*.bin output/InterOp/
+    cp ${run_dir}/*.xml output/
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

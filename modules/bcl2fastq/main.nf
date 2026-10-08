@@ -1,6 +1,6 @@
 process BCL2FASTQ {
     
-    tag "{meta.id}"
+    tag "${meta.id}"
     
     label 'medium_parallel'
 
@@ -16,7 +16,7 @@ process BCL2FASTQ {
     tuple val(meta), path("output/**Undetermined_S0*_I?_00?.fastq.gz")  , optional:true, emit: undetermined_idx
     tuple val(meta), path("output/Reports")                             , emit: reports
     tuple val(meta), path("output/Stats")                               , emit: stats
-    tuple val(meta), path("InterOp/*.bin")                              , emit: interop
+    tuple val(meta), path("output/InterOp/*.bin")                        , emit: interop
     path("versions.yml")                                                , emit: versions
     tuple val(meta), path("output")                                     , emit: demuxed
 
@@ -66,8 +66,8 @@ process BCL2FASTQ {
         --sample-sheet ${samplesheet} \\
         --processing-threads ${task.cpus}
 
-    cp -r ${input_dir}/InterOp .
-
+    cp -r ${input_dir}/InterOp output/
+    cp ${input_dir}/*.xml output/
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bcl2fastq: \$(bcl2fastq -V 2>&1 | grep -m 1 bcl2fastq | sed 's/^.*bcl2fastq v//')

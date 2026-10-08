@@ -16,19 +16,20 @@ workflow CONTAMINATION {
         reads
     )
     ch_versions = ch_versions.mix(FASTP.out.versions)
-    ch_qc = ch_qc.mix(FASTP.out.json)
+    ch_qc = ch_qc.mix(FASTP.out.json.map { _m,j -> j})
 
-    KRAKEN2_KRAKEN2(
-        reads,
-        kraken_db,
-        false,
-        false
-    )
-    ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
-    qc_qc = ch_qc.mix(KRAKEN2_KRAKEN2.out.report)
+    if (kraken_db) {
+        KRAKEN2_KRAKEN2(
+            reads,
+            kraken_db,
+            false,
+            false
+        )
+        ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
+        ch_qc = ch_qc.mix(KRAKEN2_KRAKEN2.out.report.map { _m,r -> r})
+    }
    
     emit:
     versions = ch_versions
-
     qc = ch_qc
 }

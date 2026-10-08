@@ -49,8 +49,8 @@ workflow READQC {
             illumina_folder.merge(samplesheet)
         )
         ch_interop      = BCL_DEMULTIPLEX.out.interop
-        ch_demux_dir    = BCL_DEMULTIPLEX.out.output
-        ch_stats        = BCL_DEMULTIPLEX.out.ch_stats
+        ch_demux_dir    = BCL_DEMULTIPLEX.out.demuxed
+        ch_stats        = BCL_DEMULTIPLEX.out.stats
 
         BCL_DEMULTIPLEX.out.reads.flatMap { m, fastqs ->
             fastqs.collect { fastq ->
@@ -105,7 +105,7 @@ workflow READQC {
     )
     ch_versions     = ch_versions.mix(CONTAMINATION.out.versions)
     multiqc_files   = multiqc_files.mix(CONTAMINATION.out.qc)
-    ch_reports      = ch_reports.mix(CONTAMINATION.out.fastp_json, CONTAMINATION.out.biobloom_json)
+    ch_reports      = ch_reports.mix(CONTAMINATION.out.qc)
     
     /*
     Perform basic read qc
@@ -139,7 +139,7 @@ workflow READQC {
     multiqc_files = multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml)
     /*
     Combine QC results
-    */
+    */    
     MULTIQC(
         multiqc_files.collect(),
         ch_multiqc_config,

@@ -7,7 +7,7 @@ skip_versions_section: true
 
 extra_fn_clean_exts:
     - type: regex
-      pattern: "_S[0-9]+_.*"
+      pattern: "_S[0-9]+.*"
 
 report_comment: >
     This report has been generated automatically by marchoeppner/read-qc.

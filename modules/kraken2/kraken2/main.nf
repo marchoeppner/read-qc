@@ -25,7 +25,7 @@ process KRAKEN2_KRAKEN2 {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.sample_id}.${meta.platform}"
+    def prefix = task.ext.prefix ?: "${meta.sample_id}"
     def suffix = task.ext.suffix ? ".${task.ext.suffix}" : ""
     def paired       = meta.single_end ? '' : '--paired'
     def classified   = meta.single_end ? "${prefix}.classified.fastq"   : "${prefix}.classified#.fastq"

@@ -11,6 +11,8 @@ workflow BCL_DEMULTIPLEX {
     ch_fastq    = channel.from([])
     ch_interop  = channel.empty()
     ch_stats    = channel.empty()
+    ch_qc       = channel.from([])
+    ch_demuxed  = channel.empty()
 
     if (params.bclconvert) {
         BCLCONVERT(
@@ -19,6 +21,7 @@ workflow BCL_DEMULTIPLEX {
         ch_fastq = BCLCONVERT.out.fastq
         ch_interop = BCLCONVERT.out.interop
         ch_versions = ch_versions.mix(BCLCONVERT.out.versions)
+        ch_demuxed = BCLCONVERT.out.demuxed
     } else if (params.bcl2fastq) {
         BCL2FASTQ(
             illumina_run
@@ -27,10 +30,15 @@ workflow BCL_DEMULTIPLEX {
         ch_interop = BCL2FASTQ.out.interop
         ch_versions = ch_versions.mix(BCL2FASTQ.out.versions)
         ch_stats = BCL2FASTQ.out.stats
+        ch_demuxed = BCL2FASTQ.out.demuxed
     }
 
+
+
     emit:
+    qc = ch_qc
     reads = ch_fastq
     stats = ch_stats
     interop = ch_interop
+    demuxed = ch_demuxed
 }
